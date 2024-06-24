@@ -13,7 +13,7 @@ const server = net.createServer((socket) => {
     else if(request.includes("/echo/")){
       const content=request.split("/")[2];
       socket.write(
-        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:${content.length}\r\n\r\n${content}`"
+        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n\r\n${content}`"
       );
 
     } else {
