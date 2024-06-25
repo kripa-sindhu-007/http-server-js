@@ -12,8 +12,9 @@ const server = net.createServer((socket) => {
       socket.write("HTTP/1.1 200 OK\r\n\r\n");
     }
     else if(url.includes("/echo/")){
-      const content=url.split('/echo/')[1];
-      socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n\r\n${content}");
+      const content = url.split("/echo/")[1];
+      const actualLength = Buffer.byteLength(content, "utf8");
+      socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: actualLength\r\n\r\n${content}");
     } else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
@@ -21,6 +22,7 @@ const server = net.createServer((socket) => {
 
   socket.on("close", () => {
     socket.end();
+    socket.close();
   });
 });
 
