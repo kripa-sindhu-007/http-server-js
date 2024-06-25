@@ -14,7 +14,14 @@ const server = net.createServer((socket) => {
       const actualLength = Buffer.byteLength(content, "utf8");
       const headers = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${actualLength}\r\n\r\n`;
       socket.write(headers + content);
-    } else {
+    } 
+    else if(url.includes("/user-agent")){
+      const content = url.split("/user-agent/")[1];
+      const actualLength = Buffer.byteLength(content, "utf8");
+      const headers = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${actualLength}\r\n\r\n`;
+      socket.write(headers + content);
+    }
+    else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
   });
