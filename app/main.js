@@ -17,9 +17,9 @@ const server = net.createServer((socket) => {
       const temp = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${actualLength}\r\n\r\n`;
       socket.write(temp + content);
     } else if (url.startsWith("/files/")) {
-      const dir = process.argv[3];
+      const directory = process.argv[3];
       const filename = url.split("/files/")[1];
-      if (fs.existsSync("${directory}/${filename}")) {
+      if (fs.existsSync(`${directory}/${filename}`)) {
         const content = fs.readFileSync("${directory}/${filename}").toString();
         const res = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`;
         socket.write(res);
