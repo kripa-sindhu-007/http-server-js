@@ -1,5 +1,6 @@
 const net = require("net");
 const fs = require("fs");
+const zlib=require("zlib");
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 console.log("Logs from your program will appear here!");
@@ -13,15 +14,25 @@ const server = net.createServer((socket) => {
     if (url == "/") {
       socket.write("HTTP/1.1 200 OK\r\n\r\n");
     } else if (url.includes("/echo/")) {
-      const content = url.split("/echo/")[1];
+      const content = url.split("/echo/")[1].trim();
       const acceptEncodingHeaderRegex = /Accept-Encoding:\s.*\r\n/g;
       const acceptEncodingMatch = acceptEncodingHeaderRegex.exec(request);
       const acceptedEncoding = acceptEncodingMatch?.[0].split(":")[1].trim().split(',').map(e => e.trim());
       console.log(acceptedEncoding)
       if (acceptedEncoding?.includes('gzip')) {
-        socket.write(
-          `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\nContent-Encoding: gzip\r\n\r\n${content}`
-        );
+        if(content){
+          const body =zlib.gzipSync(content);
+          socket.write(
+            `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\nContent-Encoding: gzip\r\n\r\n`
+          );
+          socket.write(body);
+        }else{
+          socket.write(
+            `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\nContent-Encoding: gzip\r\n\r\n${content}`
+          );
+
+        }
+        
       } else {
         socket.write(
           `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n\r\n${content}`
