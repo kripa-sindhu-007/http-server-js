@@ -16,7 +16,7 @@ const server = net.createServer((socket) => {
       const actualLength = Buffer.byteLength(content, "utf8");
       const temp = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${actualLength}\r\n\r\n`;
       socket.write(temp + content);
-    } else if (url.startsWith("/files/")) {
+    } else if (url.startsWith("/files/") && method === "GET") {
       const directory = process.argv[3];
       const filename = url.split("/files/")[1];
       if (fs.existsSync(`${directory}/${filename}`)) {
@@ -26,6 +26,13 @@ const server = net.createServer((socket) => {
       } else {
         socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       }
+    } else if (url.startsWith("/files/") && method === "POST") {
+      const directory = process.argv[3];
+      const filename = url.split("/files/")[1];
+      const req = data.toString().split("\r\n");
+      const body = req[req.length - 1];
+      fs.writeFileSync(`${directory}/${filename}`, body);
+      socket.write(`HTTP/1.1 201 CREATED\r\n\r\n`);
     } else if (url.includes("/user-agent")) {
       const userAgent = header[2].split("User-Agent: ")[1];
       socket.write(
