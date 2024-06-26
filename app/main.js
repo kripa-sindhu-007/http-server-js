@@ -9,6 +9,7 @@ const server = net.createServer((socket) => {
     const request = data.toString();
     const url = request.split(" ")[1];
     const header = request.split("\r\n");
+    const method=request.split[0];
     if (url == "/") {
       socket.write("HTTP/1.1 200 OK\r\n\r\n");
     } else if (url.includes("/echo/")) {
