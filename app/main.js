@@ -9,14 +9,26 @@ const server = net.createServer((socket) => {
     const request = data.toString();
     const url = request.split(" ")[1];
     const header = request.split("\r\n");
-    const method=request.split(" ")[0];
+    const method = request.split(" ")[0];
     if (url == "/") {
       socket.write("HTTP/1.1 200 OK\r\n\r\n");
     } else if (url.includes("/echo/")) {
       const content = url.split("/echo/")[1];
-      const actualLength = Buffer.byteLength(content, "utf8");
-      const temp = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${actualLength}\r\n\r\n`;
-      socket.write(temp + content);
+      const acceptEncodingHeaderRegex = /Accept-Encoding:\s.*\r\n/g;
+      const acceptEncodingMatch = acceptEncodingHeaderRegex.exec(request);
+      const acceptedEncoding = acceptEncodingMatch?.[0].split(":")[1].trim();
+      if (acceptedEncoding === "gzip") {
+        socket.write(
+          `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\nContent-Encoding: gzip\r\n\r\n${content}`
+        );
+      } else {
+        socket.write(
+          `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n\r\n${content}`
+        );
+      }
+      // const actualLength = Buffer.byteLength(content, "utf8");
+      // const temp = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${actualLength}\r\n\r\n`;
+      // socket.write(temp + content);
     } else if (url.startsWith("/files/") && method === "GET") {
       const directory = process.argv[3];
       const filename = url.split("/files/")[1];
